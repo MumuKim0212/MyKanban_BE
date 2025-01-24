@@ -5,7 +5,7 @@ const prisma = new PrismaClient();
 
 export const getBoard = async (req: Request, res: Response) => {
   try {
-    const board = await prisma.board.findFirst({
+    let board = await prisma.board.findFirst({
       include: {
         columns: {
           include: {
@@ -14,9 +14,34 @@ export const getBoard = async (req: Request, res: Response) => {
         },
       },
     });
+
+    if (!board) {
+      // 보드가 없을 경우 기본 보드를 생성
+      board = await prisma.board.create({
+        data: {
+          title: "Default Kanban Board",
+          columns: {
+            create: [
+              { title: "To Do", cardIds: "" },
+              { title: "In Progress", cardIds: "" },
+              { title: "Done", cardIds: "" },
+            ],
+          },
+        },
+        include: {
+          columns: {
+            include: {
+              cards: true,
+            },
+          },
+        },
+      });
+    }
+
     res.json(board);
   } catch (error) {
-    res.status(500).json({ error: 'Error fetching board' });
+    console.error("Error fetching or creating board:", error);
+    res.status(500).json({ error: 'Error fetching or creating board' });
   }
 };
 
