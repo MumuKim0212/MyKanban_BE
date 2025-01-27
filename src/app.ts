@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import boardRoutes from './routes/board.routes';
 import cardRoutes from './routes/card.routes';
+import columnRoutes from './routes/column.routes';
 
 const app = express();
 
