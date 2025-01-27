@@ -13,8 +13,8 @@ jobs:
         with:
           workflow: ci.yml
           workflow_conclusion: success
-          name: server-files
-          path: . 
+          name: build
+          path: .
           
       - name: Add SSH key
         env:
