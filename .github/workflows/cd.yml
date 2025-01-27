@@ -33,4 +33,5 @@ jobs:
           ssh ${{ secrets.USERNAME }}@${{ secrets.HOST }} "mkdir -p $DEPLOY_PATH"
           ssh ${{ secrets.USERNAME }}@${{ secrets.HOST }} "rm -rf $DEPLOY_PATH/*"
           scp -r ./* ${{ secrets.USERNAME }}@${{ secrets.HOST }}:$DEPLOY_PATH/
+          npx prisma generate
           ssh ${{ secrets.USERNAME }}@${{ secrets.HOST }} "cd $DEPLOY_PATH && chmod -R 755 . && pm2 restart kanban-backend || pm2 start npm --name 'kanban-backend' -- start"
