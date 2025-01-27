@@ -10,6 +10,7 @@ app.use(express.json());
 
 app.use('/api/board', boardRoutes);
 app.use('/api/cards', cardRoutes);
+app.use("/api/columns", columnRoutes)
 
 const PORT = process.env.PORT || 4000;
 
