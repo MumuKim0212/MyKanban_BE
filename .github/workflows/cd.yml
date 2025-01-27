@@ -29,7 +29,26 @@ jobs:
         env:
           DEPLOY_PATH: /home/${{ secrets.USERNAME }}/Server
         run: |
+          # 디렉토리 준비
           ssh ${{ secrets.USERNAME }}@${{ secrets.HOST }} "mkdir -p $DEPLOY_PATH"
           ssh ${{ secrets.USERNAME }}@${{ secrets.HOST }} "rm -rf $DEPLOY_PATH/*"
+          
+          # 파일 전송
+          echo "Copying files to server..."
           scp -r ./* ${{ secrets.USERNAME }}@${{ secrets.HOST }}:$DEPLOY_PATH/
-          ssh ${{ secrets.USERNAME }}@${{ secrets.HOST }} "cd $DEPLOY_PATH && npm install && chmod -R 755 . && npx prisma generate && pm2 restart kanban-backend || pm2 start npm --name 'kanban-backend' -- start"
+          
+          # npm install 실행
+          echo "Installing dependencies..."
+          ssh ${{ secrets.USERNAME }}@${{ secrets.HOST }} "cd $DEPLOY_PATH && npm install > npm-install.log 2>&1"
+          
+          # 권한 설정
+          echo "Setting permissions..."
+          ssh ${{ secrets.USERNAME }}@${{ secrets.HOST }} "cd $DEPLOY_PATH && chmod -R 755 ."
+          
+          # Prisma 생성
+          echo "Generating Prisma client..."
+          ssh ${{ secrets.USERNAME }}@${{ secrets.HOST }} "cd $DEPLOY_PATH && npx prisma generate > prisma-generate.log 2>&1"
+          
+          # PM2 재시작
+          echo "Starting PM2..."
+          ssh ${{ secrets.USERNAME }}@${{ secrets.HOST }} "cd $DEPLOY_PATH && pm2 restart kanban-backend > pm2-restart.log 2>&1 || pm2 start npm --name 'kanban-backend' -- start > pm2-start.log 2>&1"
