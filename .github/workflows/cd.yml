@@ -9,13 +9,12 @@ jobs:
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
       - uses: dawidd6/action-download-artifact@v2
         with:
           workflow: ci.yml
           workflow_conclusion: success
-          name: build
-          path: dist
+          name: server-files
+          path: . 
           
       - name: Add SSH key
         env:
@@ -33,4 +32,4 @@ jobs:
           ssh ${{ secrets.USERNAME }}@${{ secrets.HOST }} "mkdir -p $DEPLOY_PATH"
           ssh ${{ secrets.USERNAME }}@${{ secrets.HOST }} "rm -rf $DEPLOY_PATH/*"
           scp -r ./* ${{ secrets.USERNAME }}@${{ secrets.HOST }}:$DEPLOY_PATH/
-          ssh ${{ secrets.USERNAME }}@${{ secrets.HOST }} "cd $DEPLOY_PATH && chmod -R 755 . && npx prisma generate && pm2 restart kanban-backend || pm2 start npm --name 'kanban-backend' -- start"
+          ssh ${{ secrets.USERNAME }}@${{ secrets.HOST }} "cd $DEPLOY_PATH && npm install && chmod -R 755 . && npx prisma generate && pm2 restart kanban-backend || pm2 start npm --name 'kanban-backend' -- start"
